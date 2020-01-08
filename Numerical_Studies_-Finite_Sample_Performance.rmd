@@ -1,0 +1,178 @@
+---
+title: 'Numerical Studies : Finite Sample Performance'
+author: "MADALI Nabil,Virgile Rennard"
+output:
+  html_document:
+    df_print: paged
+---
+For  numerical  studies  and  real  data  analysis,  in  the  case  where  the  actual  order of  moments  is  unspecified,  we  presume the  variance  is  finite  and we generate data from the linear mode :
+\begin{equation}
+            
+            y_i=< x_i,\beta^*>  +\epsilon_i \qquad i=1,..,n
+\end{equation}
+        
+ here $\epsilon_i$ are i.i.d.  regression errors and 
+Normal Distribution and $\beta^*$=$(5,-2,0,0,3,\underbrace{0,...,0}_\text{d-5})^T  \in R^d.$. 
+
+Independent of $\epsilon_i$, we generate $x_i$ from standard multivariate normal distribution $\mathcal{N}$(0,$I_d$).As the original paper, we set (n,d) = (100,5), and generate regression errors from three dif-ferent distributions :
+
+1.  the normal distribution $\mathcal{N}(0,4)$
+2.  the  t-distribution with degrees of freedom 1.5
+3.  the log-normal distribution $log\mathcal{N}(0,4)$
+
+Both t and log-normal distributions are heavy-tailed, and produce outliers with high chance.
+
+```{r}
+library(tfHuber)
+n = 100
+d = 5
+```
+
+## Normal distribution $\mathcal{N}(0,4)$
+
+
+```{r}
+
+m_ols=0
+std_ols=0
+
+m_huber=0
+std_huber=0
+
+for (year in 1:100){
+  X = matrix(rnorm(n * d,0,1), n, d) 
+  error=rnorm(n ,0,2)
+  thetaStar=c(5, -2, 0, 0, 3)
+  
+  Y = as.numeric(X %*% thetaStar + error)
+  
+  n_eff=n/log(d)
+    
+  tau=0.5 *sd(Y)*((n_eff/log(n))^(0.5))
+ 
+  
+  listHuber = huberReg(X, Y,constTau=tau)
+  thetaHuber = listHuber$theta
+  #thetaHuber=thetaHuber[2:length(thetaHuber)]
+  
+  
+  er=(Y- X %*% unname(lm(Y ~ X)$coefficients)[2:6] )^2
+  er2 = (Y- as.numeric(cbind(rep(1, n), X) %*% thetaHuber ))^2
+  
+  m_ols=c(m_ols,mean(er))
+  std_ols=c(std_ols,sd(er))
+  
+  m_huber=c(m_huber,mean(er2))
+  std_huber=c(std_huber,sd(er2))
+}
+m_ols=m_ols[2:101]
+std_ols=std_ols[2:101]
+mean(m_ols)
+sd(m_ols)
+
+
+m_huber=m_huber[2:101]
+std_huber=std_huber[2:101]
+mean(m_huber)
+sd(m_huber)
+
+```
+
+##  t-distribution with degrees of freedom 1.5
+
+```{r}
+m_ols=0
+std_ols=0
+
+m_huber=0
+std_huber=0
+
+for (year in 1:100){
+  X = matrix(rnorm(n * d,0,1), n, d) 
+  error=rt(n ,1.5)
+  thetaStar=c(5, -2, 0, 0, 3)
+  
+  Y = as.numeric(X %*% thetaStar + error)
+  
+  n_eff=n/log(d)
+    
+  tau=0.5 *sd(Y)*((n_eff/log(n))^(0.5))
+ 
+  
+  listHuber = huberReg(X, Y,constTau=tau)
+  thetaHuber = listHuber$theta
+  #thetaHuber=thetaHuber[2:length(thetaHuber)]
+  
+  
+  er=(Y- X %*% unname(lm(Y ~ X)$coefficients)[2:6] )^2
+  er2 = (Y- as.numeric(cbind(rep(1, n), X) %*% thetaHuber ))^2
+  
+  m_ols=c(m_ols,mean(er))
+  std_ols=c(std_ols,sd(er))
+  
+  m_huber=c(m_huber,mean(er2))
+  std_huber=c(std_huber,sd(er2))
+}
+m_ols=m_ols[2:101]
+std_ols=std_ols[2:101]
+
+mean(m_ols)
+
+sd(m_ols)
+
+m_huber=m_huber[2:101]
+std_huber=std_huber[2:101]
+mean(m_huber)
+sd(m_huber)
+```
+
+## Log-normal distribution $log\mathcal{N}(0,4)$
+
+```{r}
+
+m_ols=0
+std_ols=0
+
+m_huber=0
+std_huber=0
+
+for (year in 1:100){
+  X = matrix(rt(n * d,1.5), n, d) 
+  error=rnorm(n ,0,2)
+  thetaStar=c(5, -2, 0, 0, 3)
+  
+  Y = as.numeric(X %*% thetaStar + error)
+  
+  n_eff=n/log(d)
+    
+  tau=0.5 *sd(Y)*((n_eff/log(n))^(0.5))
+ 
+  
+  listHuber = huberReg(X, Y,constTau=tau)
+  thetaHuber = listHuber$theta
+  #thetaHuber=thetaHuber[2:length(thetaHuber)]
+  
+  
+  er=(Y- X %*% unname(lm(Y ~ X)$coefficients)[2:6] )^2
+  er2 = (Y- as.numeric(cbind(rep(1, n), X) %*% thetaHuber ))^2
+  
+  m_ols=c(m_ols,mean(er))
+  std_ols=c(std_ols,sd(er))
+  
+  m_huber=c(m_huber,mean(er2))
+  std_huber=c(std_huber,sd(er2))
+}
+m_ols=m_ols[2:101]
+std_ols=std_ols[2:101]
+mean(m_ols)
+sd(m_ols)
+
+
+m_huber=m_huber[2:101]
+std_huber=std_huber[2:101]
+mean(m_huber)
+sd(m_huber)
+
+```
+
+The  results  on $\ell_2$-error  for  adaptive  Huber  regression  and  the  least  squares  es-timator,  averaged over 100 simulations,  are summarized in Table 1.  In the case of normally distributed noise, the adaptive Huber estimator performs as well as the least squares.  With heavy-tailed regression errors following Student’s t or log-normal distribution, the adaptive Huber regression significantly outperforms the least squares.
