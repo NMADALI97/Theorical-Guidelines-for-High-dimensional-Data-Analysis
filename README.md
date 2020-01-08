@@ -1,6 +1,6 @@
 # Huber Adaptive Regression
 
-An implementation of Huber Adaptive Regression.Codes are borrowed from [tfHuber](https://github.com/belepi93/pytorch-rainbow), [baselines](https://github.com/XiaoouPan/tfHuber).
+An implementation of Huber Adaptive Regression.Codes are borrowed from [tfHuber](https://github.com/XiaoouPan/tfHuber).
 
 ## Author(s)
 
